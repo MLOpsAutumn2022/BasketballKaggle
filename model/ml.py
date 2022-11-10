@@ -26,20 +26,14 @@ class IterativeModel(nn.Module):
         self.mlp = nn.Sequential(
             nn.utils.weight_norm(nn.Linear(team_emb_size * 2, model_emb_size * 6)),
             nn.LeakyReLU(),
-
             nn.BatchNorm1d(model_emb_size * 6),
             nn.utils.weight_norm(nn.Linear(model_emb_size * 6, model_emb_size * 4)),
             nn.LeakyReLU(),
-
             nn.BatchNorm1d(model_emb_size * 4),
             nn.utils.weight_norm(nn.Linear(model_emb_size * 4, model_emb_size * 2)),
             nn.LeakyReLU(),
-
         )
-        self.output_win = nn.Sequential(
-            nn.Linear(model_emb_size * 2, 1),
-            nn.Sigmoid()
-        )
+        self.output_win = nn.Sequential(nn.Linear(model_emb_size * 2, 1), nn.Sigmoid())
         self.output_team1_info = nn.Linear(model_emb_size * 2, num_info)
         self.output_team2_info = nn.Linear(model_emb_size * 2, num_info)
 

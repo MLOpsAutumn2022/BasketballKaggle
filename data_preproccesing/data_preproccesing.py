@@ -18,10 +18,20 @@ class DataManager:
 
     def get_test_data(self, season):
         df = self.sub_df.copy()
-        df['Season'] = df['ID'].apply(lambda x: int(x.split('_')[0]))
+        df["Season"] = df["ID"].apply(lambda x: int(x.split("_")[0]))
         df = df[df.Season == season]
-        team1_ids = df['ID'].apply(lambda x: int(x.split('_')[1])).astype(int).map(self.team_id_map)
-        team2_ids = df['ID'].apply(lambda x: int(x.split('_')[2])).astype(int).map(self.team_id_map)
+        team1_ids = (
+            df["ID"]
+            .apply(lambda x: int(x.split("_")[1]))
+            .astype(int)
+            .map(self.team_id_map)
+        )
+        team2_ids = (
+            df["ID"]
+            .apply(lambda x: int(x.split("_")[2]))
+            .astype(int)
+            .map(self.team_id_map)
+        )
         team1_ids = torch.tensor(team1_ids.values).long().to(self.device)
         team2_ids = torch.tensor(team2_ids.values).long().to(self.device)
         return team1_ids, team2_ids
@@ -34,26 +44,28 @@ class DataManager:
     def get_normalizer(self):
         df = self.reg_df.copy()
         qt = QuantileTransformer(random_state=config.SEED)
-        info_data = np.concatenate((df[config.WIN_INFO_COLS].values, df[config.LOSE_INFO_COLS].values), axis=0)
+        info_data = np.concatenate(
+            (df[config.WIN_INFO_COLS].values, df[config.LOSE_INFO_COLS].values), axis=0
+        )
         qt.fit(info_data)
         return qt
 
     def process_df(self, _df, is_train=True):
         df = _df.copy()
-        df.drop(columns=['WLoc', 'NumOT'], inplace=True)
+        df.drop(columns=["WLoc", "NumOT"], inplace=True)
 
         # normalize
         df[config.WIN_INFO_COLS] = self.normalizer.transform(df[config.WIN_INFO_COLS])
         df[config.LOSE_INFO_COLS] = self.normalizer.transform(df[config.LOSE_INFO_COLS])
 
         # map indices
-        df['WTeamID'] = df['WTeamID'].astype(int).map(self.team_id_map)
-        df['LTeamID'] = df['LTeamID'].astype(int).map(self.team_id_map)
+        df["WTeamID"] = df["WTeamID"].astype(int).map(self.team_id_map)
+        df["LTeamID"] = df["LTeamID"].astype(int).map(self.team_id_map)
 
         ret = []
-        for _, group in df.groupby(['Season', 'DayNum']):
-            data1 = group[['WTeamID'] + config.WIN_INFO_COLS].values
-            data2 = group[['LTeamID'] + config.LOSE_INFO_COLS].values
+        for _, group in df.groupby(["Season", "DayNum"]):
+            data1 = group[["WTeamID"] + config.WIN_INFO_COLS].values
+            data2 = group[["LTeamID"] + config.LOSE_INFO_COLS].values
 
             if is_train:
                 # Duplicate the data and make it symetrical to get rid of winner and loser
@@ -69,11 +81,13 @@ class DataManager:
                 data2 = _data2
 
             tmp = {
-                'team1_ids': torch.tensor(data1[:, 0]).long().to(self.device),
-                'team2_ids': torch.tensor(data2[:, 0]).long().to(self.device),
-                'team1_data': torch.tensor(data1[:, 1:]).float().to(self.device),
-                'team2_data': torch.tensor(data2[:, 1:]).float().to(self.device),
-                'team1_win': torch.tensor(data1[:, 1] > data2[:, 1]).float().to(self.device)
+                "team1_ids": torch.tensor(data1[:, 0]).long().to(self.device),
+                "team2_ids": torch.tensor(data2[:, 0]).long().to(self.device),
+                "team1_data": torch.tensor(data1[:, 1:]).float().to(self.device),
+                "team2_data": torch.tensor(data2[:, 1:]).float().to(self.device),
+                "team1_win": torch.tensor(data1[:, 1] > data2[:, 1])
+                .float()
+                .to(self.device),
             }
             ret.append(edict(tmp))
         return ret
@@ -90,6 +104,6 @@ class DataManager:
             test_data = self.get_test_data(season)
         return train_df, valid_df, test_data
 
-def get_df(file_name):
-    return pd.read_csv(f'{config.DATA_DIR}/{file_name}')
 
+def get_df(file_name):
+    return pd.read_csv(f"{config.DATA_DIR}/{file_name}")
