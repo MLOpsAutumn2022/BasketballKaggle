@@ -1,7 +1,5 @@
 /data/MDataFiles_Stage2
 
-/input
-
 .idea/
 .ipynb_checkpoints/
 __pycache__/
