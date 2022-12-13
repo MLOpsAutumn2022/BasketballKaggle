@@ -1,0 +1,2 @@
+# BasketballKaggle
+Работа выполнена в качества итогового проекта по MLOps. Готовая модель была взята с соревнования [Kaggle](https://www.kaggle.com/code/axotcc/6th-place-solution-team-embedding/notebook).

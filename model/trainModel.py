@@ -1,20 +1,6 @@
-import torch
 import torch.nn as nn
 
-from config import (
-    SAMPLE_SUBMISSION_FILE,
-    REGULAR_FILE,
-    NCAA_FILE,
-    device,
-    INFO_COLS,
-    TEAM_EMB_SIZE,
-    MODEL_HIDDEN_SIZE,
-    SEASONS,
-    LEARNING_RATE,
-    TEAM1_WIN_LOSS_WEIGHT,
-    INFO_COLS_LOSS_WEIGHT,
-    INFO_LOSS_WEIGHT,
-)
+from config import *
 from data_preproccesing.data_preproccesing import get_df, DataManager
 from model.ml import IterativeModel, MetricTracker
 
