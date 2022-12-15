@@ -1,5 +1,7 @@
 numpy
 torch
 pandas
-sklearn
+scikit-learn
 easydict
+dvc
+dvc-gdrive
